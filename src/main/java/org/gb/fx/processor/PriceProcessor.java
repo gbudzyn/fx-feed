@@ -27,18 +27,20 @@ public class PriceProcessor implements Processor {
     @Override
     public void onMessage(final String message) {
         log.debug("Processing message {}", message);
+        final String[] lines = message.split("\n");
+        for (final String line : lines) {
+            final MarketPriceDTO marketPrice;
+            try {
+                marketPrice = mapper.readerWithSchemaFor(MarketPriceDTO.class).readValue(line);
+            } catch (JsonProcessingException exception) {
+                log.error("Skipping line {} due to parsing exception", line, exception);
 
-        final MarketPriceDTO marketPrice;
-        try {
-            marketPrice = mapper.readerWithSchemaFor(MarketPriceDTO.class).readValue(message);
-        } catch (JsonProcessingException exception) {
-            log.error("Skipping message {} due to parsing exception", message, exception);
+                continue;
+            }
 
-            throw new RuntimeException();
+            final MarketPrice calculatedMarketPrice = marginCalculator.calculate(marketPrice);
+
+            repository.storeLatestPrice(calculatedMarketPrice);
         }
-
-        final MarketPrice calculatedMarketPrice = marginCalculator.calculate(marketPrice);
-
-        repository.storeLatestPrice(calculatedMarketPrice);
     }
 }
