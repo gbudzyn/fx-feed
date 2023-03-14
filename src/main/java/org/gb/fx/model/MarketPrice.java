@@ -9,6 +9,7 @@ import java.time.ZonedDateTime;
 
 @Builder
 @Getter
+@ToString
 public class MarketPrice {
     private final Integer id;
     private final Instrument instrument;
