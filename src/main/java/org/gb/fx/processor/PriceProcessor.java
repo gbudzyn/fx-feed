@@ -2,6 +2,7 @@ package org.gb.fx.processor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.gb.fx.calculator.Calculator;
 import org.gb.fx.model.MarketPrice;
@@ -17,7 +18,7 @@ public class PriceProcessor implements Processor {
     final CsvMapper mapper;
 
     public PriceProcessor(final Calculator<MarketPriceDTO, MarketPrice> marginCalculator, PriceRepository repository) {
-        this.mapper = new CsvMapper();
+        this.mapper = (CsvMapper) new CsvMapper().registerModule(new JavaTimeModule());
 
         this.marginCalculator = marginCalculator;
         this.repository = repository;
